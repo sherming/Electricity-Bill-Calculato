@@ -45,13 +45,34 @@
         }
         .checkbox-group {
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
         }
         .checkbox-group label {
-            margin-right: 10px;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 5px;
         }
         label {
             display: block;
             margin-bottom: 5px;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .input-group label {
+            flex: 0 0 auto;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        .input-group input[type="number"] {
+            flex: 1;
+            padding: 8px;
         }
     </style>
 </head>
@@ -63,8 +84,10 @@
             <label><input type="checkbox" id="year2023" checked> 2023年</label>
             <label><input type="checkbox" id="year2024" checked> 2024年</label>
         </div>
-        <label for="usage">請輸入用電度數：</label>
-        <input type="number" id="usage" placeholder="請輸入用電度數">
+        <div class="input-group">
+            <label for="usage">請輸入用電度數：</label>
+            <input type="number" id="usage" placeholder="請輸入用電度數">
+        </div>
         <button onclick="calculateBill()">計算夏月電費</button>
         <div id="result"></div>
     </div>
@@ -104,7 +127,7 @@
 
             const result = `${year}年夏月電費計算：\n` + 
                            details.join('\n') + 
-                           `\n概算電費金額：${formatNumber(bill*2).split('.')[0]} 元\n`;
+                           `\n概算電費金額：<span style="color: red;">${formatNumber(bill*2).split('.')[0]}</span> 元\n`;
             
             return { result, bill: bill * 2 };
         }
@@ -154,19 +177,31 @@
                 for (let i = 1; i < bills.length; i++) {
                     const increase = bills[i] - bills[i-1];
                     const increasePercentage = (increase / bills[i-1]) * 100;
-                    finalResult += `\n${selectedYears[i-1]}年電費：${formatNumber(bills[i-1])} 元\n`;
-                    finalResult += `${selectedYears[i]}年電費：${formatNumber(bills[i])} 元\n`;
-                    finalResult += `漲幅：${formatNumber(increase)} 元 (${increasePercentage.toFixed(2)}%)\n`;
+                    finalResult += `\n${selectedYears[i-1]}年電費：<span style="color: red;">${formatNumber(bills[i-1])}</span> 元\n`;
+                    finalResult += `${selectedYears[i]}年電費：<span style="color: red;">${formatNumber(bills[i])}</span> 元\n`;
+                    finalResult += `漲幅：<span style="color: red;">${formatNumber(increase)}</span> 元 (<span style="color: red;">${increasePercentage.toFixed(2)}</span>%)\n`;
                 }
             }
 
-            document.getElementById('result').textContent = finalResult;
+            document.getElementById('result').innerHTML = finalResult;
         }
 
-        // 初始化時確保至少選中兩個年份
+        // 初始化時確保至少選中兩個年份，添加 Enter 鍵事件監聽器，並聚焦輸入框
         window.onload = function() {
             document.getElementById('year2023').checked = true;
             document.getElementById('year2024').checked = true;
+
+            const usageInput = document.getElementById('usage');
+
+            // 為用電度數輸入框添加 Enter 鍵事件監聽器
+            usageInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    calculateBill();
+                }
+            });
+
+            // 自動聚焦到輸入框
+            usageInput.focus();
         }
     </script>
 </body>
